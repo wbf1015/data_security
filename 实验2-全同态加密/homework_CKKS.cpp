@@ -4,7 +4,7 @@
 using namespace std;
 using namespace seal;
 #define N 3
-//本例目的：给定x, y, z三个数的密文，让服务器计算x*y*z
+//本例目的：给定x, y, z三个数的密文，让服务器计算x**3 + y*z
 
 int main(){
 
@@ -24,6 +24,7 @@ EncryptionParameters parms(scheme_type::ckks);
 2.coeff_modulus（参数模数）
 3.scale（规模）*/
 
+//change here because we need to mul 3 times
 size_t poly_modulus_degree = 16384;
 parms.set_poly_modulus_degree(poly_modulus_degree);
 parms.set_coeff_modulus(CoeffModulus::Create(poly_modulus_degree, { 60, 40, 40, 40, 40, 40, 40, 60 }));
@@ -86,6 +87,7 @@ SEALContext context_server(parms);
     Plaintext wt;
 	encoder.encode(1.0, scale, wt);
 
+//let the xc and yc `s index becom 5
     evaluator.multiply_plain_inplace(zc, wt);
 	evaluator.rescale_to_next_inplace(zc);
 
@@ -94,10 +96,12 @@ SEALContext context_server(parms);
 
 
 //计算y*z，密文相乘，要进行relinearize和rescaling操作 
+//let temp`s size become 4
 	evaluator.multiply(zc,yc,temp);
 	evaluator.relinearize_inplace(temp, relin_keys);
 	evaluator.rescale_to_next_inplace(temp);
 
+// accomplish x**3 cal
     Ciphertext temp2;
     evaluator.multiply(xc,xc,temp2);
 	evaluator.relinearize_inplace(temp2, relin_keys);
@@ -128,7 +132,7 @@ SEALContext context_server(parms);
 //注意要解码到一个向量上
 	vector<double> result;
 	encoder.decode(result_p, result);
-//得到结果，正确的话将输出：{6.000，24.000，60.000，...，0.000，0.000，0.000}
+//得到结果，正确的话将输出：{7.000，20.000，47.000，...，0.000，0.000，0.000}
 	cout << "结果是：" << endl;
 	print_vector(result,3,3);
 return 0;
