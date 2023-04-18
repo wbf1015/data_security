@@ -103,6 +103,7 @@ def Search_emails(ss):
                 break
     if index_i == -1 & index_j == -1:
         print("[ERROR TRACK] : DO NOT HAVE THIS WORD")
+        return None,None
         
     ee = Encrypt_Emails[index_i][index_j]
     correct_emails = []
@@ -135,8 +136,11 @@ if __name__ == '__main__':
     # 这个时候所有的邮件都加载好了，如果存在服务端，这个时候服务端应该保存Server_emails，客户端保存Encrypt_Emails
     # 但此时Encrypt_Emails应该不存CI，只存Xi,Ki,Si，但这里没有这么操作，为了debug我都存了，但其实后面都没有用到
     print_Server_Emails()
-    search_word = "apple"
+    search_word = "Chinese"
     Searched_emails,ew = Search_emails(search_word)
+    if Searched_emails == None:
+        print('error search_word')
+        exit()
     Decrypt_Emails = Searched_emails
     print('Searching',len(Searched_emails),'eamil containing',search_word)
     Decrypt_emails(ew)
